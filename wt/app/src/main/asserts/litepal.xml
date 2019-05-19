@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<litepal>
+    <dbname value="wt_weather"/>
+
+    <version value="1"/>
+
+    <list>
+        <mapping class="com.weather.www.wt.db.Province"/>
+        <mapping class="com.weather.www.wt.db.City"/>
+        <mapping class="com.weather.www.wt.db.County"/>
+    </list>
+</litepal>
