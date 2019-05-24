@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.telecom.Call;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,6 @@ import java.util.List;
 
 import okhttp3.Callback;
 import okhttp3.Response;
-import okhttp3.internal.Util;
 
 public class ChooseAreaFragment extends Fragment {
     public static final int LEVEL_PROVINCE = 0;
@@ -53,7 +53,8 @@ public class ChooseAreaFragment extends Fragment {
     private City selectedCity;
     //选中的级别
     private int currentLevel;
-    //
+    //测试信息
+    public static final String Tag = "Area";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -80,6 +81,22 @@ public class ChooseAreaFragment extends Fragment {
                 }else if(currentLevel == LEVEL_CITY){
                     selectedCity = cityList.get(position);
                     queryCounties();
+                }else if(currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    //如果是菜单请求天气数据
+                    if (getActivity() instanceof MainActivity){
+                        Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                        //借助Intent将天气id传到天气界面
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+                    }else if (getActivity() instanceof WeatherActivity){
+                        WeatherActivity activity = (WeatherActivity)getActivity();
+                        activity.drawerLayout.closeDrawers();
+                        activity.swipeRefreshLayout.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+                    }
+
                 }
             }
         });
@@ -141,6 +158,7 @@ public class ChooseAreaFragment extends Fragment {
         }else{
             int code = selectedProvince.getCode();
             String address = "http://guolin.tech/api/china/"+code;
+            System.out.println("code:"+code);
             queryFromServer(address,"city");
         }
     }
@@ -165,9 +183,9 @@ public class ChooseAreaFragment extends Fragment {
         }else{
             int provinceCode = selectedProvince.getCode();
             int cityCode = selectedCity.getCode();
-            String address = "http://guolin.tech/api/china/"+provinceCode+"/"+
-                    cityCode;
-            queryFromServer(address,"county");
+            String address = "http://guolin.tech/api/china/" + provinceCode + "/" + cityCode;
+            System.out.println(address);
+            queryFromServer(address, "county");
         }
     }
 
@@ -198,8 +216,10 @@ public class ChooseAreaFragment extends Fragment {
                     result = Utility.ProvinceResponse(responseText);
                 }else if("city".equals(type)){
                     result = Utility.CityResponse(responseText,selectedProvince.getId());
+                    System.out.println("city");
                 }else if("county".equals(type)){
                     result = Utility.CountyResponse(responseText,selectedCity.getId());
+                    System.out.println("county");
                 }
                 if(result){
                     getActivity().runOnUiThread(new Runnable() {

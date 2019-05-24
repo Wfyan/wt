@@ -3,9 +3,11 @@ package com.weather.www.wt.util;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.weather.www.wt.db.City;
 import com.weather.www.wt.db.County;
 import com.weather.www.wt.db.Province;
+import com.weather.www.wt.gson.BingImage;
 import com.weather.www.wt.gson.Weather;
 
 import org.json.JSONArray;
@@ -81,7 +83,7 @@ public class Utility {
                     JSONObject countyObject = allCounties.getJSONObject(i);
                     County county = new County();
                     county.setName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getString("weatherId"));
+                    county.setWeatherId(countyObject.getString("weather_id"));
                     county.setCityId(cityId);
                     county.save();
                 }
@@ -91,5 +93,19 @@ public class Utility {
             }
         }
         return false;
+    }
+    /**
+     * 解析Bing的图片资源
+     */
+    public static BingImage BingImageResponse(String response){
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("images");
+            String s = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(s,BingImage.class);
+        }catch(JSONException e){
+            e.printStackTrace();
+        }
+        return null;
     }
 }
