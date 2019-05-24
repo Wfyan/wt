@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.weather.www.wt.gson.BingImage;
 import com.weather.www.wt.gson.Forecast;
+import com.weather.www.wt.gson.Suggestion;
 import com.weather.www.wt.gson.Weather;
 import com.weather.www.wt.util.HttpUtil;
 import com.weather.www.wt.util.Utility;
@@ -47,9 +48,8 @@ public class WeatherActivity extends AppCompatActivity {
     private LinearLayout forecastLayout;
     private TextView aqiText;
     private TextView pm25Text;
-    private TextView carWashText;
-    private TextView sportText;
-    private TextView comfortText;
+    private LinearLayout suggestionLayout;
+    private TextView txt;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,9 +71,7 @@ public class WeatherActivity extends AppCompatActivity {
         forecastLayout = (LinearLayout) findViewById(R.id.forecast_layout);
         aqiText = (TextView)findViewById(R.id.aqi_text);
         pm25Text = (TextView)findViewById(R.id.pm25_text);
-        carWashText = (TextView)findViewById(R.id.car_wash_text);
-        sportText = (TextView)findViewById(R.id.sport_text);
-        comfortText = (TextView)findViewById(R.id.comfort_text);
+        suggestionLayout = (LinearLayout)findViewById(R.id.suggestion_layout);
         //bing图片控件
         bingPicImage = (ImageView)findViewById(R.id.bing_pic);
 
@@ -127,7 +125,7 @@ public class WeatherActivity extends AppCompatActivity {
      * 根据天气id获取天气信息
      */
     public void requestWeather(final String weatherId){
-        String weatherUrl ="http://guolin.tech/api/weather?cityid="+weatherId+"&key=bc0418b57b2d4918819d3974ac1285d9";
+        String weatherUrl ="https://free-api.heweather.net/s6/weather?location="+weatherId+"&key=d2ae781d61744d65a2ef2156eef2cb64";
         HttpUtil.sendOkHttpRequest(weatherUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -145,6 +143,7 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
+                System.out.println("key is ok");
                 final Weather weather = Utility.WeatherResponse(responseText);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -172,9 +171,9 @@ public class WeatherActivity extends AppCompatActivity {
      */
     public void showWeatherInfo(Weather weather){
         String cityName = weather.basic.cityName;
-        String updateTime = weather.basic.update.updateTime;
+        String updateTime = weather.update.updateTime;
         String degree = weather.now.temperture+"℃";
-        String weatherInfo = weather.now.more.info;
+        String weatherInfo = weather.now.cond_txt;
 
         titleCity.setText(cityName);
         titleUpdateTime.setText(updateTime);
@@ -190,9 +189,9 @@ public class WeatherActivity extends AppCompatActivity {
             TextView maxText = (TextView)view.findViewById(R.id.max_text);
             TextView minText = (TextView)view.findViewById(R.id.min_text);
             dataText.setText(forecast.date);
-            infoText.setText(forecast.more.info);
-            maxText.setText(forecast.temperture.max);
-            minText.setText(forecast.temperture.min);
+            infoText.setText(forecast.cond_txt_d);
+            maxText.setText(forecast.tmp_max);
+            minText.setText(forecast.tmp_min);
             forecastLayout.addView(view);
         }
         //空气指数
@@ -200,12 +199,16 @@ public class WeatherActivity extends AppCompatActivity {
             aqiText.setText(weather.aqi.city.aqi);
             pm25Text.setText(weather.aqi.city.pm25);
         }
-        String comfort = "舒适度"+weather.suggestion.comfort.info;
-        String carWash = "洗车指数"+weather.suggestion.carWash.info;
-        String sport = "运动建议"+weather.suggestion.sport.info;
-        comfortText.setText(comfort);
-        carWashText.setText(carWash);
-        sportText.setText(sport);
+
+        suggestionLayout.removeAllViews();
+        //重新绘制多天未来天气
+        for (Suggestion suggestion : weather.suggestionList){
+            View view = LayoutInflater.from(this).inflate(R.layout.suggestion_item,suggestionLayout,false);
+            TextView dataText = (TextView)view.findViewById(R.id.date_text);
+            dataText.setText(suggestion.txt);
+            suggestionLayout.addView(view);
+        }
+
         weatherLayout.setVisibility(View.VISIBLE);
     }
 
@@ -214,7 +217,6 @@ public class WeatherActivity extends AppCompatActivity {
      */
     private void loadBingPic(){
         String BingUrl = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN";
-
         HttpUtil.sendOkHttpRequest(BingUrl, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
