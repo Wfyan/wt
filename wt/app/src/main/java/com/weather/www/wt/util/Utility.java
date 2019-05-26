@@ -14,6 +14,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 public class Utility {
     /**
      * 将JSON数据解析为Weather实体类
@@ -108,4 +110,21 @@ public class Utility {
         }
         return null;
     }
+    /**
+     * 判断字符串中是否有匹配项
+     */
+    public boolean ishashId(String s,String a){
+        String[] sa = s.split("|");
+        for (int i=0;i<sa.length;i++){
+            if(sa[i].equals(a)){
+                return true;
+            }
+        }
+        System.out.println(sa.length);
+        //s.contains(a);
+        return false;
+    }
+    /**
+     *
+     */
 }

@@ -2,7 +2,9 @@ package com.weather.www.wt;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.telecom.Call;
 import android.util.Log;
@@ -82,21 +84,30 @@ public class ChooseAreaFragment extends Fragment {
                     selectedCity = cityList.get(position);
                     queryCounties();
                 }else if(currentLevel == LEVEL_COUNTY){
-                    String weatherId = countyList.get(position).getWeatherId();
+                    final String weatherId = countyList.get(position).getWeatherId();
+                    System.out.println("chooseFragment:"+weatherId);
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    final String s = preferences.getString("weather_id",null);
+                    System.out.println(s);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                            if(s == null){//如果不存在，就写进去
+                                editor.putString("weather_id",weatherId); editor.commit();
+                                System.out.println("第一个："+weatherId);
+                            }else if (!s.contains(weatherId)){
+                                editor.putString("weather_id",s+" "+weatherId); editor.commit();
+                                System.out.println("不是第一个："+weatherId);
+                            }
                     //如果是菜单请求天气数据
                     if (getActivity() instanceof MainActivity){
                         Intent intent = new Intent(getActivity(),WeatherActivity.class);
-                        //借助Intent将天气id传到天气界面
-                        intent.putExtra("weather_id",weatherId);
                         startActivity(intent);
                         getActivity().finish();
-                    }else if (getActivity() instanceof WeatherActivity){
-                        WeatherActivity activity = (WeatherActivity)getActivity();
-                        activity.drawerLayout.closeDrawers();
-                        activity.swipeRefreshLayout.setRefreshing(true);
-                        activity.requestWeather(weatherId);
+                    }else if (getActivity() instanceof CityManagerActivity){
+                        //跳转到对应的城市天气信息页面
+                        Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                        startActivity(intent);
+                        getActivity().finish();
                     }
-
                 }
             }
         });
@@ -216,10 +227,8 @@ public class ChooseAreaFragment extends Fragment {
                     result = Utility.ProvinceResponse(responseText);
                 }else if("city".equals(type)){
                     result = Utility.CityResponse(responseText,selectedProvince.getId());
-                    System.out.println("city");
                 }else if("county".equals(type)){
                     result = Utility.CountyResponse(responseText,selectedCity.getId());
-                    System.out.println("county");
                 }
                 if(result){
                     getActivity().runOnUiThread(new Runnable() {
