@@ -11,11 +11,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="30dp"
+        android:text="sss"
         android:textSize="36sp"
         android:textColor="#fff" />
 
     <LinearLayout
+        android:id="@+id/degree_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -28,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
+            android:text="26"
             android:textSize="40sp"
             android:textColor="#fff" />
         <TextView
@@ -39,6 +42,14 @@
             android:textColor="#fff" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/delete_item"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/canel"
+        android:visibility="invisible"
+        />
 
 </RelativeLayout>
 

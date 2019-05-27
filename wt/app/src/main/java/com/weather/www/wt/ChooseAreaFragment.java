@@ -85,10 +85,10 @@ public class ChooseAreaFragment extends Fragment {
                     queryCounties();
                 }else if(currentLevel == LEVEL_COUNTY){
                     final String weatherId = countyList.get(position).getWeatherId();
-                    System.out.println("chooseFragment:"+weatherId);
+                    System.out.println("在chooseAreaFragment中通过countyList获取的："+weatherId);
                     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
                     final String s = preferences.getString("weather_id",null);
-                    System.out.println(s);
+                    System.out.println("在ChooseAreaFragment中通过SharedP获取的："+s);
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
                             if(s == null){//如果不存在，就写进去
                                 editor.putString("weather_id",weatherId); editor.commit();

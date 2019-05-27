@@ -38,8 +38,6 @@ public class WeatherFragment extends Fragment {
     private String weatherId;
 
     public SwipeRefreshLayout swipeRefreshLayout;
-    public DrawerLayout drawerLayout;
-
     private ImageView bingPicImage;
     private Button navButton;
     private ScrollView weatherLayout;
@@ -93,7 +91,6 @@ public class WeatherFragment extends Fragment {
         swipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         //导航
-        drawerLayout = (DrawerLayout)view.findViewById(R.id.drawer_layout);
         navButton = (Button)view.findViewById(R.id.nav_button);
         return view;
     }
@@ -104,8 +101,7 @@ public class WeatherFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(),CityManagerActivity.class);
-                startActivity(intent);
-                getActivity().finish();
+                startActivityForResult(intent,3);
             }
         });
 
