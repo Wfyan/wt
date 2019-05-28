@@ -49,19 +49,11 @@
                     android:background="@drawable/done"/>
             </RelativeLayout>
 
-            <ScrollView
+            <ListView
+                android:id="@+id/city_list_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:scrollbars="none">
-
-                <LinearLayout
-                    android:id="@+id/city_list_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-
-            </ScrollView>
+                android:layout_height="wrap_content">
+            </ListView>
 
             <RelativeLayout
                 android:layout_width="match_parent"

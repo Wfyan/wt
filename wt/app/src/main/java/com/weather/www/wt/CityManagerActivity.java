@@ -8,18 +8,23 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.weather.www.wt.gson.Weather;
+import com.weather.www.wt.util.CityAdapter;
 import com.weather.www.wt.util.Utility;
 
-public class CityManagerActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.List;
+
+public class CityManagerActivity extends AppCompatActivity implements AdapterView.OnItemLongClickListener {
     private DrawerLayout city_drawerLayout;
-    private LinearLayout cityLayout;
+    private ListView cityLayout;
     private Button addButton;
     private Button backButton;
 
@@ -28,6 +33,10 @@ public class CityManagerActivity extends AppCompatActivity {
 
     private RelativeLayout title1;
     private RelativeLayout title2;
+
+    private CityAdapter adapter;
+    private List<Weather> lists = new ArrayList<>();
+    private boolean isShowDelete = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,7 +48,7 @@ public class CityManagerActivity extends AppCompatActivity {
 
         //初始化控件
         city_drawerLayout = (DrawerLayout)findViewById(R.id.city_drawer_layout);
-        cityLayout = (LinearLayout)findViewById(R.id.city_list_layout);
+        cityLayout = (ListView)findViewById(R.id.city_list_layout);
         addButton = (Button)findViewById(R.id.add_button);
         backButton = (Button)findViewById(R.id.back_button);
         cancel_btn = (Button)findViewById(R.id.cancel_btn);
@@ -70,52 +79,47 @@ public class CityManagerActivity extends AppCompatActivity {
             }
         });
         showCity(sa);
+        //设置适配器
+        adapter = new CityAdapter(CityManagerActivity.this,R.layout.city_item,lists);
+
+        cityLayout.setAdapter(adapter);
+        cityLayout.setOnItemLongClickListener(this);
     }
 
     /**
      * 展示城市列表
      */
     public void showCity(String[] sa){
-        cityLayout.removeAllViews();
-
         for (String s :sa){
-            View view = LayoutInflater.from(this).inflate(R.layout.city_item,cityLayout,false);
-            TextView cityName = (TextView)view.findViewById(R.id.city_name);
-            final TextView degree = (TextView)view.findViewById(R.id.city_degree);
-            TextView txt = (TextView)view.findViewById(R.id.city_txt);
-            final ImageView delete = (ImageView)view.findViewById(R.id.delete_item);
-
             //获取数据
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             Weather weather = Utility.WeatherResponse(preferences.getString(s,null));
-            cityName.setText(weather.basic.cityName);
-            degree.setText(weather.now.temperture+"℃");
-            txt.setText(weather.now.cond_txt);
-
-            delete.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    v.setVisibility(View.GONE);
-                }
-            });
-
-            view.setOnLongClickListener(new View.OnLongClickListener(){
-                @Override
-                public boolean onLongClick(View v) {
-                    System.out.println("长按执行成功");
-                    title1.setVisibility(View.GONE);
-                    title2.setVisibility(View.VISIBLE);
-                    return true;
-                }
-            });
-
-            view.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View v) {
-                    System.out.println("跳到WeatherActivity相应界面");
-                }
-            });
-            cityLayout.addView(view);
+            lists.add(weather);
         }
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        if (isShowDelete) {
+            isShowDelete = false;
+        } else {
+            isShowDelete = true;
+            adapter.setShowDelete(isShowDelete);
+            title1.setVisibility(View.GONE);
+            title2.setVisibility(View.VISIBLE);
+            cityLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view,
+                                        int position, long id) {
+                    //delete(position);//删除选中项
+                    System.out.println(position);
+                    adapter = new CityAdapter(CityManagerActivity.this,R.layout.city_item,lists); //重新绑定一次adapter
+                    cityLayout.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }
+        adapter.setShowDelete(isShowDelete);//setIsShowDelete()方法用于传递isShowDelete值
+        return true;
     }
 }

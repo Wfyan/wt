@@ -140,7 +140,7 @@ public class ChooseAreaFragment extends Fragment {
                 dataList.add(province.getName());
             }
             //当适配器数据发生改变时强制调用getView()，返回一个新布局
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();//通知适配器更改
             listView.setSelection(0);
             currentLevel = LEVEL_PROVINCE;
         }else {
@@ -163,7 +163,7 @@ public class ChooseAreaFragment extends Fragment {
             for(City city : cityList){
                 dataList.add(city.getName());
             }
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();//通知适配器更改
             listView.setSelection(0); //重置
             currentLevel = LEVEL_CITY;
         }else{
@@ -188,7 +188,7 @@ public class ChooseAreaFragment extends Fragment {
             for(County county : countyList){
                 dataList.add(county.getName());
             }
-            adapter.notifyDataSetChanged();
+            adapter.notifyDataSetChanged();//通知适配器更改
             listView.setSelection(0); //重置
             currentLevel = LEVEL_COUNTY;
         }else{
