@@ -44,11 +44,9 @@ public class AutoUpdateService extends Service {
      */
     private void updataWeather(){
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String weatherString = preferences.getString("weather",null);
-        if (weatherString != null){
-            //取出天气id，重新获取新的天气信息
-            Weather weather = Utility.WeatherResponse(weatherString);
-            final String weatherId = weather.basic.weatherId;
+        String weather = preferences.getString("weather_id",null).split(" ")[0];
+        if (weather != null){
+            final String weatherId = weather;
             String url = "http://guolin.tech/api/weather?cityid="+weatherId+"&key=bc0418b57b2d4918819d3974ac1285d9";
             HttpUtil.sendOkHttpRequest(url, new Callback() {
                 @Override
@@ -62,7 +60,7 @@ public class AutoUpdateService extends Service {
                     Weather weather = Utility.WeatherResponse(responseText);
                     if(weather!=null&&"ok".equals(weather.status)){
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
-                        editor.putString("weather",responseText);
+                        editor.putString(weatherId,responseText);
                         editor.apply();
                     }
                 }

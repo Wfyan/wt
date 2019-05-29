@@ -93,8 +93,8 @@ public class ChooseAreaFragment extends Fragment {
                             if(s == null){//如果不存在，就写进去
                                 editor.putString("weather_id",weatherId); editor.commit();
                                 System.out.println("第一个："+weatherId);
-                            }else if (!s.contains(weatherId)){
-                                editor.putString("weather_id",s+" "+weatherId); editor.commit();
+                            }else if (!s.contains(weatherId)){//将最新的请求放在第一个
+                                editor.putString("weather_id",weatherId+" "+s); editor.commit();
                                 System.out.println("不是第一个："+weatherId);
                             }
                     //如果是菜单请求天气数据
@@ -105,8 +105,8 @@ public class ChooseAreaFragment extends Fragment {
                     }else if (getActivity() instanceof CityManagerActivity){
                         //跳转到对应的城市天气信息页面
                         Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                        intent.putExtra("position",position);//最新的 最后一个
                         startActivity(intent);
-                        getActivity().finish();
                     }
                 }
             }

@@ -28,7 +28,7 @@ public class WeatherActivity extends AppCompatActivity {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         String[] sa = preferences.getString("weather_id",null).split(" ");
-        for(int i=0;i<sa.length;i++){
+        for(int i=0;i<sa.length;i++){ //保持默认的天气页面是最新的，写入SharedPreference时就保证
             WeatherFragment t = new WeatherFragment();
             t.setWeatherId(sa[i]);
             System.out.println("WeatherId:"+sa[i]);
@@ -38,7 +38,7 @@ public class WeatherActivity extends AppCompatActivity {
         FragmentManager fm = getSupportFragmentManager();
         mAdapter = new ViewPagerAdapter(fm,lists);
         viewPager.setAdapter(mAdapter);
-        viewPager.setCurrentItem(0);
+        viewPager.setCurrentItem(getIntent().getIntExtra("position",0));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.weather.www.wt;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -66,24 +67,47 @@ public class CityManagerActivity extends AppCompatActivity implements AdapterVie
         backButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                //返回上一个界面
-                finish();
+                Intent intent = new Intent(CityManagerActivity.this,WeatherActivity.class);
+                startActivity(intent);
             }
         });
+
+        showCity(sa);
+        //设置适配器
+        adapter = new CityAdapter(CityManagerActivity.this,R.layout.city_item,lists);
 
         cancel_btn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
                 title1.setVisibility(View.VISIBLE);
                 title2.setVisibility(View.GONE);
+                isShowDelete = false;
+                adapter.setShowDelete(isShowDelete);
             }
         });
-        showCity(sa);
-        //设置适配器
-        adapter = new CityAdapter(CityManagerActivity.this,R.layout.city_item,lists);
-
+        done_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                title1.setVisibility(View.VISIBLE);
+                title2.setVisibility(View.GONE);
+                isShowDelete = false;
+                delete(adapter.getPositionList().get(0));
+                adapter.setShowDelete(isShowDelete);
+            }
+        });
         cityLayout.setAdapter(adapter);
+
         cityLayout.setOnItemLongClickListener(this);
+
+        cityLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //跳转到相应的天气信息页面
+                Intent intent = new Intent(CityManagerActivity.this,WeatherActivity.class);
+                intent.putExtra("position",position);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -98,26 +122,37 @@ public class CityManagerActivity extends AppCompatActivity implements AdapterVie
         }
     }
 
+    /**
+     * 删除
+     */
+    public void delete(int position){
+       String id = lists.get(position).basic.weatherId;
+       //移除天气数据
+       SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+       editor.remove(id);
+       lists.remove(position);
+       //重新记录天气Id
+        String s = lists.get(0).basic.weatherId;
+        for(int i=0;i< lists.size();i++){
+            if(i==0){
+            }else {
+                s = s+" "+lists.get(i).basic.weatherId;
+            }
+        }
+        System.out.println(s);
+        editor.putString("weather_id",s);
+        editor.commit();
+       adapter.notifyDataSetChanged();
+    }
+
     @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+    public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
         if (isShowDelete) {
             isShowDelete = false;
         } else {
             isShowDelete = true;
-            adapter.setShowDelete(isShowDelete);
             title1.setVisibility(View.GONE);
             title2.setVisibility(View.VISIBLE);
-            cityLayout.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    //delete(position);//删除选中项
-                    System.out.println(position);
-                    adapter = new CityAdapter(CityManagerActivity.this,R.layout.city_item,lists); //重新绑定一次adapter
-                    cityLayout.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-            });
         }
         adapter.setShowDelete(isShowDelete);//setIsShowDelete()方法用于传递isShowDelete值
         return true;

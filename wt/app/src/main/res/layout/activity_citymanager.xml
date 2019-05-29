@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/colorPrimary" android:orientation="vertical">
+    android:background="@drawable/shape_gradient" android:orientation="vertical">
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/city_drawer_layout"
@@ -19,7 +19,7 @@
                 android:id="@+id/title2"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
+                android:background="?attr/colorAccent"
                 android:visibility="gone">
 
                 <TextView
@@ -49,10 +49,17 @@
                     android:background="@drawable/done"/>
             </RelativeLayout>
 
-            <ListView
+<!--            <android.support.v7.widget.RecyclerView
                 android:id="@+id/city_list_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+            </android.support.v7.widget.RecyclerView>-->
+            
+            <ListView
+                android:id="@+id/city_list_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:descendantFocusability="afterDescendants" >
             </ListView>
 
             <RelativeLayout
