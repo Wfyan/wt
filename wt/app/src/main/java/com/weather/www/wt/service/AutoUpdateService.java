@@ -32,8 +32,9 @@ public class AutoUpdateService extends Service {
         updateBingPic();
         //设置后台定时任务
         AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
-        int anHour = 8*60*60*1000; //8小时
+        int anHour = 1*60*1000; //8小时
         long triggerAtTime = SystemClock.elapsedRealtime()+anHour;
+        System.out.println(triggerAtTime+"更新");
         Intent i = new Intent(this,AutoUpdateService.class);
         PendingIntent pi = PendingIntent.getService(this,0, i,0);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
@@ -47,7 +48,7 @@ public class AutoUpdateService extends Service {
         String weather = preferences.getString("weather_id",null).split(" ")[0];
         if (weather != null){
             final String weatherId = weather;
-            String url = "http://guolin.tech/api/weather?cityid="+weatherId+"&key=bc0418b57b2d4918819d3974ac1285d9";
+            String url = "https://free-api.heweather.net/s6/weather?location="+weatherId+"&key=d2ae781d61744d65a2ef2156eef2cb64";
             HttpUtil.sendOkHttpRequest(url, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -61,6 +62,7 @@ public class AutoUpdateService extends Service {
                     if(weather!=null&&"ok".equals(weather.status)){
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
                         editor.putString(weatherId,responseText);
+                        System.out.println(responseText);
                         editor.apply();
                     }
                 }

@@ -25,6 +25,7 @@ import com.weather.www.wt.gson.BingImage;
 import com.weather.www.wt.gson.Forecast;
 import com.weather.www.wt.gson.Suggestion;
 import com.weather.www.wt.gson.Weather;
+import com.weather.www.wt.service.AutoUpdateService;
 import com.weather.www.wt.util.HttpUtil;
 import com.weather.www.wt.util.Utility;
 
@@ -108,7 +109,6 @@ public class WeatherFragment extends Fragment {
         //数据存储访问
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String weatherString = prefs.getString(weatherId,null);
-
 
         String bingPic = prefs.getString("bing_pic",null);
         if(bingPic != null){
@@ -226,6 +226,9 @@ public class WeatherFragment extends Fragment {
         }
 
         weatherLayout.setVisibility(View.VISIBLE);
+        //启动后台程序
+        Intent intent = new Intent(getActivity(),AutoUpdateService.class);
+        getActivity().startService(intent);
     }
 
     /**
