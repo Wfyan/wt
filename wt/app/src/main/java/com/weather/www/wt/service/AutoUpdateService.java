@@ -34,7 +34,7 @@ public class AutoUpdateService extends Service {
         AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
         int anHour = 1*60*1000; //8小时
         long triggerAtTime = SystemClock.elapsedRealtime()+anHour;
-        System.out.println(triggerAtTime+"更新");
+        //System.out.println(triggerAtTime+"更新");
         Intent i = new Intent(this,AutoUpdateService.class);
         PendingIntent pi = PendingIntent.getService(this,0, i,0);
         manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,triggerAtTime,pi);
@@ -62,7 +62,6 @@ public class AutoUpdateService extends Service {
                     if(weather!=null&&"ok".equals(weather.status)){
                         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(AutoUpdateService.this).edit();
                         editor.putString(weatherId,responseText);
-                        System.out.println(responseText);
                         editor.apply();
                     }
                 }

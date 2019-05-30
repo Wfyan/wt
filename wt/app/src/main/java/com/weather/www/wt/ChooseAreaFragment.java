@@ -92,10 +92,8 @@ public class ChooseAreaFragment extends Fragment {
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
                             if(s == null){//如果不存在，就写进去
                                 editor.putString("weather_id",weatherId); editor.commit();
-                                System.out.println("第一个："+weatherId);
                             }else if (!s.contains(weatherId)){//将最新的请求放在第一个
                                 editor.putString("weather_id",weatherId+" "+s); editor.commit();
-                                System.out.println("不是第一个："+weatherId);
                             }
                     //如果是菜单请求天气数据
                     if (getActivity() instanceof MainActivity){
