@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="skybg">#72666666</color>
     <color name="boldblue">#003366</color>
+    <color name="forecast_txt">#000</color>
 </resources>

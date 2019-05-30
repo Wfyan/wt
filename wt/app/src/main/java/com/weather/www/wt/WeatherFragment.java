@@ -214,11 +214,12 @@ public class WeatherFragment extends Fragment {
         for (Forecast forecast : weather.forecastList){
             View view = LayoutInflater.from(getActivity()).inflate(R.layout.forecast_item,forecastLayout,false);
             TextView dataText = (TextView)view.findViewById(R.id.date_text);
-            TextView infoText = (TextView)view.findViewById(R.id.info_text);
+            ImageView infoText = (ImageView) view.findViewById(R.id.info_text);
             TextView maxText = (TextView)view.findViewById(R.id.max_text);
             TextView minText = (TextView)view.findViewById(R.id.min_text);
             dataText.setText(forecast.date);
-            infoText.setText(forecast.cond_txt_d);
+            int id = getResources().getIdentifier("a"+forecast.cond_code_d,"drawable",getContext().getPackageName());
+            infoText.setImageResource(id);
             maxText.setText(forecast.tmp_max);
             minText.setText(forecast.tmp_min);
             forecastLayout.addView(view);
