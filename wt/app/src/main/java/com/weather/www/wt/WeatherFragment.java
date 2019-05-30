@@ -21,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.weather.www.wt.gson.AQI;
 import com.weather.www.wt.gson.BingImage;
 import com.weather.www.wt.gson.Forecast;
 import com.weather.www.wt.gson.Suggestion;
@@ -49,6 +50,7 @@ public class WeatherFragment extends Fragment {
     private LinearLayout forecastLayout;
     private TextView aqiText;
     private TextView pm25Text;
+    private TextView qltyText;
     private LinearLayout suggestionLayout;
     private TextView txt;
 
@@ -84,6 +86,7 @@ public class WeatherFragment extends Fragment {
         forecastLayout = (LinearLayout) view.findViewById(R.id.forecast_layout);
         aqiText = (TextView)view.findViewById(R.id.aqi_text);
         pm25Text = (TextView)view.findViewById(R.id.pm25_text);
+        qltyText = (TextView)view.findViewById(R.id.qlty_text);
         suggestionLayout = (LinearLayout)view.findViewById(R.id.suggestion_layout);
         //bing图片控件
         bingPicImage = (ImageView)view.findViewById(R.id.bing_pic);
@@ -109,6 +112,7 @@ public class WeatherFragment extends Fragment {
         //数据存储访问
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String weatherString = prefs.getString(weatherId,null);
+        String aqiString = prefs.getString(weatherId+"aqi",null);
 
         String bingPic = prefs.getString("bing_pic",null);
         if(bingPic != null){
@@ -116,7 +120,7 @@ public class WeatherFragment extends Fragment {
         }else {
             loadBingPic();
         }
-
+        //常规天气信息
         if(weatherString!=null){//如果有缓存，则直接拿来解析
             Weather weather = Utility.WeatherResponse(weatherString);
             //展示数据
@@ -125,11 +129,20 @@ public class WeatherFragment extends Fragment {
             weatherLayout.setVisibility(View.INVISIBLE);
             requestWeather(weatherId);
         }
+        //空气质量
+        if(aqiString!=null){//如果有缓存，则直接拿来解析
+            AQI aqi = Utility.AQIResponse(aqiString);
+            //展示数据
+            showAqiInfo(aqi);
+        }else { //无缓存时去服务器查询
+            requestAQI(weatherId);
+        }
         //复写下拉刷新功能
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 requestWeather(weatherId);
+                requestAQI(weatherId);
             }
         });
     }
@@ -156,7 +169,7 @@ public class WeatherFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
-                System.out.println("key is ok");
+                //System.out.println("key is ok");
                 final Weather weather = Utility.WeatherResponse(responseText);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -210,11 +223,6 @@ public class WeatherFragment extends Fragment {
             minText.setText(forecast.tmp_min);
             forecastLayout.addView(view);
         }
-        //空气指数
-        if(weather.aqi != null){
-            aqiText.setText(weather.aqi.city.aqi);
-            pm25Text.setText(weather.aqi.city.pm25);
-        }
 
         suggestionLayout.removeAllViews();
         //重新绘制
@@ -229,6 +237,19 @@ public class WeatherFragment extends Fragment {
         //启动后台程序
         Intent intent = new Intent(getActivity(),AutoUpdateService.class);
         getActivity().startService(intent);
+    }
+
+    /**
+     * 处理JSON数据展示AQI实体类的数据
+     */
+    public void showAqiInfo(AQI a){
+        String aqitxt = a.air.aqin;
+        String pm25txt = a.air.pm25;
+        String qltytxt = a.air.qlty;
+
+        aqiText.setText(aqitxt);
+        pm25Text.setText(pm25txt);
+        qltyText.setText(qltytxt);
     }
 
     /**
@@ -259,6 +280,48 @@ public class WeatherFragment extends Fragment {
                         }else {
                             Toast.makeText(getActivity(),"加载图片失败",Toast.LENGTH_SHORT).show();
                         }
+                    }
+                });
+            }
+        });
+    }
+    /**
+     * 根据天气id获取空气质量信息
+     */
+    public void requestAQI(final String weatherId){
+        String url ="https://free-api.heweather.net/s6/air/now?location="+weatherId+"&key=d2ae781d61744d65a2ef2156eef2cb64";
+        HttpUtil.sendOkHttpRequest(url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "连接失败",
+                                Toast.LENGTH_SHORT).show();
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseText = response.body().string();
+                final AQI aqi = Utility.AQIResponse(responseText);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(aqi != null && "ok".equals(aqi.status)){
+                            //缓存数据
+                            SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                            editor.putString(weatherId+"aqi",responseText);
+                            //从内部类访问本地变量，需要被声明为最终类型
+                            editor.apply();
+                            showAqiInfo(aqi);
+                            Toast.makeText(getActivity(), "获取空气质量信息成功",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }

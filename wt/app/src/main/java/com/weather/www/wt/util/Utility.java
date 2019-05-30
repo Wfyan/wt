@@ -7,6 +7,7 @@ import com.google.gson.JsonArray;
 import com.weather.www.wt.db.City;
 import com.weather.www.wt.db.County;
 import com.weather.www.wt.db.Province;
+import com.weather.www.wt.gson.AQI;
 import com.weather.www.wt.gson.BingImage;
 import com.weather.www.wt.gson.Weather;
 
@@ -26,6 +27,20 @@ public class Utility {
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather6");
             String weatherContent = jsonArray.getJSONObject(0).toString();
             return new Gson().fromJson(weatherContent,Weather.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /**
+     * 将JSON数据解析为AQI实体类
+     */
+    public static AQI AQIResponse (String response){
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather6");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,AQI.class);
         }catch (Exception e){
             e.printStackTrace();
         }
